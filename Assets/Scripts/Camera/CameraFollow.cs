@@ -5,36 +5,25 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
     public Transform m_target;
-    private Vector3 m_offset;
 
-    public float zoomSpeed = 4f;
-    public float minZoom = 5f;
-    public float maxZoom = 15f;
+    Vector3 velocity = Vector3.zero;
+    public float smoothFactor = 0.15f;
 
-    public float pitch = 2f;
-    
-    private float currentZoom = 10f;
-    public float smoothFactor = 0.5f;
-    public bool lookAtPlayer = false;
+    int offset;
 
     private void Start()
     {
-        m_offset = transform.position - m_target.position;
+        offset = (int)transform.position.z;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        currentZoom -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
-        currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
-    }
+        Vector3 newPostion = m_target.position;
+        newPostion.y = transform.position.y;
+        newPostion.z += offset;
 
-    private void LateUpdate()
-    {
-        Vector3 newPostion = m_target.position + m_offset;
-        transform.position = Vector3.Slerp(transform.position, newPostion, smoothFactor);
-
-        if(lookAtPlayer)
-            transform.LookAt(m_target);
+        transform.position = Vector3.SmoothDamp(transform.position, newPostion, ref velocity, smoothFactor * Time.deltaTime);
+        //Debug.Log(newPostion);
     }
 
 }

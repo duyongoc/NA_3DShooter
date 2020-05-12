@@ -10,7 +10,7 @@ public class EnemyController : MonoBehaviour
     public float m_attackRange = 3f;
 
     public float m_timeAttackDelay = 1f;
-    //private float m_timer = 0;
+    private float m_timer = 0;
 
     public Animator m_animator;
     private NavMeshAgent m_agent;
@@ -55,6 +55,8 @@ public class EnemyController : MonoBehaviour
 
     void StateEnemyIdle()
     {
+        m_animator.SetFloat("Moving", m_agent.velocity.magnitude/ m_speedEnemy);
+
         float distanceToPlayer = Vector3.SqrMagnitude(m_target.position - transform.position);
         if(distanceToPlayer < m_detectionRadius * m_detectionRadius)
         {
@@ -66,8 +68,10 @@ public class EnemyController : MonoBehaviour
 
     void StateEnemyMoving()
     {
+        m_animator.SetFloat("Moving", m_agent.velocity.magnitude/ m_speedEnemy);
         m_agent.SetDestination(m_target.position);
 
+        float rangeAttack = Vector3.SqrMagnitude(m_target.position - transform.position);
         float distanceToPlayer = Vector3.SqrMagnitude(m_target.position - transform.position);
         if(distanceToPlayer > m_detectionRadius * m_detectionRadius)
         {
@@ -75,11 +79,39 @@ public class EnemyController : MonoBehaviour
             currentState = StateEnemy.Idle;
         }
 
+        //enemy attack
+        if(rangeAttack < m_attackRange * m_attackRange)
+        {
+            m_agent.ResetPath();
+            m_agent.isStopped = true;
+            m_agent.velocity = Vector3.zero;
+            currentState = StateEnemy.Attack;
+        }
+
     }
 
     void StateEnemyAttack()
     {
-
+        float rangeAttack = Vector3.SqrMagnitude(m_target.position - transform.position);
+        if(rangeAttack > m_attackRange * m_attackRange)
+        {
+            m_agent.isStopped = false;
+            currentState = StateEnemy.Moving;
+        }
+        else
+        {
+            //m_animator.SetBool("Attack0", false);
+            m_animator.SetFloat("Moving", 0);
+            m_timer += Time.deltaTime;
+            if(m_timer > m_timeAttackDelay)
+            {
+                //m_animator.SetBool("Attack0", true);
+                transform.LookAt(m_target.position);
+                m_animator.SetTrigger("Attack");
+                m_timer = 0; 
+            }
+            
+        }
     }
     
 }

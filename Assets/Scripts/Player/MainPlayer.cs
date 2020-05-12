@@ -8,7 +8,7 @@ public class MainPlayer : MonoBehaviour
     public static MainPlayer s_instance;
 
     //movement
-    private PlayerInputHandler m_playerMovement;
+    private PlayerInputHandler m_playerInput;
     //private bool isMouseClick = false;
 
 
@@ -30,7 +30,7 @@ public class MainPlayer : MonoBehaviour
 
     private void Start()
     {
-        m_playerMovement = this.GetComponent<PlayerInputHandler>();
+        m_playerInput = this.GetComponent<PlayerInputHandler>();
     }
 
     private void FixedUpdate()
@@ -46,7 +46,7 @@ public class MainPlayer : MonoBehaviour
             }
             case E_StatePlayer.Move:
             {
-                m_playerMovement.StatePlayerMove();
+                m_playerInput.StatePlayerMove();
                 break;
             }
             case E_StatePlayer.Attack:
